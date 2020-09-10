@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides:             allegro
+# Required-Start:       $network $remote_fs $syslog
+# Required-Stop:        $remote_fs $syslog
+# Default-Start:        2 3 4 5
+# Default-Stop:
+# Short-Description:    UESTC's network authorize script
+### END INIT INFO
+
+logoutByUserIdAndPass()#par1:ID, par2:password
+{
+    curl -s -d "userId=$1&pass=$2" "http://172.25.249.8/eportal/InterFace.do?method=logoutByUserIdAndPass"
+}
+
+id=19113276914
+psw=12345678
+
+case "$1" in
+start)
+    /etc/init.d/netauthsrc/netauthd&
+    ;;
+
+stop)
+    logoutByUserIdAndPass $id $psw
+    killall -9 netauthd
+    ;;
+
+logout)
+    logoutByUserIdAndPass $id $psw
+    killall -9 netauthd
+    ;;
+
+restart)
+    $0 logout
+    $0 start
+    ;;
+
+*)
+    echo "Usage: $0 {start|stop|restart|logout}"
+    exit 1
+esac
+
+exit 0

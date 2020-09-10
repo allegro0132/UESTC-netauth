@@ -1,0 +1,64 @@
+#!/bin/sh
+
+urlencode() 
+{
+    local data
+    data="$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "$1" "")"
+    echo "${data##/?}"
+    return 0
+}
+
+getQs()#only work on unlogged status, to get queryString
+{
+    data=`curl -Ls -I http://172.25.249.8 | grep ?`
+    s1=${data#*jsp?}
+    echo $(urlencode `urlencode $s1`)
+
+}
+
+login()#par1:id, par2:psw,par3:qS, return Userid
+{
+    s0=$(curl -s -d "userId=$1&password=$2&service=&queryString=$3&operatorPwd=&operatorUserId=&validcode=&passwordEncrypt=false" "http://172.25.249.8/eportal/InterFace.do?method=login")
+    s1=${s0#*:\"}
+    s2=${s1%%\"*}
+    echo $s2
+}
+
+logout()# par1:userIndex
+{
+    curl -s -d "userIndex=$1" "http://172.25.249.8/eportal/InterFace.do?method=logout"
+}
+
+logoutByUserIdAndPass()#par1:ID, par2:password
+{
+    curl -s -d "userId=$1&pass=$2" "http://172.25.249.8/eportal/InterFace.do?method=logoutByUserIdAndPass"
+}
+
+getOnlineUserInfo()
+{
+    curl -s -d "userIndex=$1" "http://172.25.249.8/eportal/InterFace.do?method=getOnlineUserInfo"
+}
+
+id=19113276914
+psw=12345678
+
+#init
+logoutByUserIdAndPass $id $psw
+qS=$(getQs)
+userIndex=$(login $id $psw $qS)
+#watchdog deamon
+while :
+do
+    getOnlineUserInfo $userIndex | grep wait
+    if [ $? -ne 0 ]
+    then
+        logoutByUserIdAndPass $id $psw
+        qS=$(getQs)
+        userIndex=$(login $id $psw $qS)
+#        echo log
+    fi
+    sleep 60s
+#    echo ok
+done
+
+exit 0
