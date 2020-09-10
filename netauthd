@@ -39,8 +39,8 @@ getOnlineUserInfo()
     curl -s -d "userIndex=$1" "http://172.25.249.8/eportal/InterFace.do?method=getOnlineUserInfo"
 }
 
-id=19113276914
-psw=12345678
+id=yourphonenumber
+psw=yourpassword
 
 #init
 logoutByUserIdAndPass $id $psw
