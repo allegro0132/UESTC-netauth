@@ -14,8 +14,8 @@ logoutByUserIdAndPass()#par1:ID, par2:password
     curl -s -d "userId=$1&pass=$2" "http://172.25.249.8/eportal/InterFace.do?method=logoutByUserIdAndPass"
 }
 
-id=19113276914
-psw=12345678
+id=yourphonenumber
+psw=yourpassword
 
 case "$1" in
 start)
