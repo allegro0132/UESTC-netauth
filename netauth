@@ -19,7 +19,7 @@ psw=yourpassword
 
 case "$1" in
 start)
-    /etc/init.d/netauthsrc/netauthd&
+    /usr/local/bin/netauthd &
     ;;
 
 stop)
